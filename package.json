@@ -1,0 +1,13 @@
+{
+  "name": "milano-system",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.14.0",
+    "express": "^4.19.2",
+    "node-fetch": "^2.7.0"
+  }
+}
