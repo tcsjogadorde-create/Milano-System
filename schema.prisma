@@ -1,0 +1,83 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String         @id
+  username      String
+  globalName    String?
+  avatar        String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  verification  Verification?
+  oauthToken    OAuthToken?
+  pullLogs      PullMemberLog[]
+}
+
+model Verification {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verifiedAt   DateTime @default(now())
+  status       String
+  roleAssigned Boolean  @default(false)
+}
+
+model OAuthToken {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken  String
+  refreshToken String
+  expiresAt    DateTime
+  scope        String
+  revoked      Boolean  @default(false)
+  updatedAt    DateTime @updatedAt
+}
+
+model PullOperation {
+  id            String           @id @default(uuid())
+  executedBy    String
+  totalEligible Int
+  addedCount    Int
+  alreadyIn     Int
+  failedCount   Int
+  expiredCount  Int
+  status        String
+  createdAt     DateTime         @default(now())
+  membersLogs   PullMemberLog[]
+}
+
+model PullMemberLog {
+  id          String        @id @default(uuid())
+  operationId String
+  operation   PullOperation @relation(fields: [operationId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  status      String
+  errorMsg    String?
+  createdAt   DateTime      @default(now())
+}
+
+model SystemConfig {
+  id               String   @id @default("config")
+  guildId          String?
+  verifiedRoleId   String?
+  logChannelId     String?
+  verifyChannelId  String?
+  updatedAt        DateTime @updatedAt
+}
+
+model SystemLog {
+  id        String   @id @default(uuid())
+  level     String
+  category  String
+  message   String
+  meta      String?
+  createdAt DateTime @default(now())
+}
